@@ -1,0 +1,67 @@
+﻿-- public.button_interactions definition
+
+-- Drop table
+
+-- DROP TABLE public.button_interactions;
+
+CREATE TABLE public.button_interactions (
+	id uuid NOT NULL,
+	command_module varchar(100) NOT NULL,
+	parent_interaction_id int8 NOT NULL,
+	unique_user int8 NULL,
+	"data" varchar NOT NULL,
+	date_created_utc timestamp(0) NOT NULL,
+	CONSTRAINT button_interactions_pk PRIMARY KEY (id)
+);
+
+
+-- public.channel_config definition
+
+-- Drop table
+
+-- DROP TABLE public.channel_config;
+
+CREATE TABLE public.channel_config (
+	channel_id int8 NOT NULL,
+	game int4 NOT NULL,
+	schedule varchar(50) NOT NULL,
+	last_sent_utc timestamp(0) NULL,
+	date_created_utc timestamp(0) NOT NULL,
+	created_by int8 NOT NULL,
+	date_updated_utc timestamp(0) NOT NULL,
+	updated_by int8 NOT NULL,
+	CONSTRAINT channel_config_pk PRIMARY KEY (channel_id, game)
+);
+
+
+-- public.game_accounts definition
+
+-- Drop table
+
+-- DROP TABLE public.game_accounts;
+
+CREATE TABLE public.game_accounts (
+	linked_id varchar(500) NOT NULL,
+	discord_id int8 NOT NULL,
+	game int4 NOT NULL,
+	date_created_utc timestamp(0) NOT NULL,
+	created_by int8 NOT NULL,
+	CONSTRAINT game_accounts_pk PRIMARY KEY (linked_id, game)
+);
+
+
+-- public.config_user definition
+
+-- Drop table
+
+-- DROP TABLE public.config_user;
+
+CREATE TABLE public.config_user (
+	channel_id int8 NOT NULL,
+	game int4 NOT NULL,
+	user_id int8 NOT NULL,
+	date_created_utc timestamp(0) NOT NULL,
+	created_by int8 NOT NULL,
+	CONSTRAINT config_user_pk PRIMARY KEY (channel_id, game, user_id),
+	CONSTRAINT config_user_fk FOREIGN KEY (channel_id,game) REFERENCES public.channel_config(channel_id,game) ON DELETE CASCADE ON UPDATE CASCADE
+);
