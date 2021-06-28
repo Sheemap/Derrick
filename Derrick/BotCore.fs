@@ -1,4 +1,4 @@
-﻿namespace Derrick
+namespace Derrick
 
 open System
 open System.Threading.Tasks
@@ -63,6 +63,7 @@ module BotCore =
         match interactionEvent.Interaction.Data.Name with
         | Setup.commandName -> Setup.handler client interactionEvent.Interaction
         | Join.commandName -> Join.handleInitial client interactionEvent.Interaction
+        | Link.commandName -> Link.handler client interactionEvent.Interaction
         | _ -> Shared.updateInteractionResponse interactionEvent.Interaction "Unknown command"
 
     let componentInteractionHandler (client: DiscordClient) (interactionEvent: InteractionCreateEventArgs) =

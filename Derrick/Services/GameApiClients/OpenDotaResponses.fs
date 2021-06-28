@@ -1,5 +1,6 @@
 ﻿module Derrick.Services.GameApiClients.OpenDotaResponses
 
+open System
 open Newtonsoft.Json
 open Newtonsoft.Json
 
@@ -58,3 +59,35 @@ type PlayerMatch =
       
       [<JsonProperty("purchase_ward_sentry")>]
       PurchaseWardSentry: int }
+   
+type Profile =
+    { [<JsonProperty("account_id")>]
+      AccountId: int
+      
+      [<JsonProperty("personaname")>]
+      PersonaName: string
+      
+      [<JsonProperty("plus")>]
+      Plus: bool
+      
+      [<JsonProperty("steamid")>]
+      SteamID: int64
+      
+      [<JsonProperty("avatar")>]
+      Avatar: string
+      
+      [<JsonProperty("avatarmedium")>]
+      AvatarMedium: string
+      
+      [<JsonProperty("avatarfull")>]
+      AvatarFull: string
+      
+      [<JsonProperty("profileurl")>]
+      ProfileUrl: string
+      
+      [<JsonProperty("last_login")>]
+      LastLogin: Nullable<DateTime> }
+
+type Player =
+    { [<JsonProperty("profile")>]
+      Profile: Profile } 

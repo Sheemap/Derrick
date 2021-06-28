@@ -2,10 +2,13 @@
 
 open System
 open System.Collections.Generic
+open System.Diagnostics
+open System.Net
 open System.Threading
 open DSharpPlus.Exceptions
 open Newtonsoft.Json
 open RestSharp
+open Chessie.ErrorHandling
 open Derrick.Services.GameApiClients.OpenDotaResponses
 
 let [<Literal>] ApiUrl = "https://api.opendota.com/api"
@@ -46,7 +49,7 @@ let getApiDelay =
         
         oldestRequest.AddMinutes(1.0) - DateTime.Now
 
-let updateRateLimit (response:IRestResponse) =
+let updateRateLimit<'T> (response:IRestResponse) =
     let header =
         response.Headers
         |> Seq.tryFind (fun h -> h.Name = "X-Rate-Limit-Remaining-Minute")
@@ -64,22 +67,46 @@ let updateRateLimit (response:IRestResponse) =
     requestDates <-
         (List.append [DateTime.Now] requestDates)
         
-let handleErrorsReturnData<'T> (response:IRestResponse) =
-    JsonConvert.DeserializeObject<'T>(response.Content)
+    ok response
+
+let validateStatusOK (response:IRestResponse) =
+    if response.StatusCode = HttpStatusCode.OK then
+        ok response
+    else
+        fail $"API request failed. URL: '%s{response.ResponseUri.ToString()}'. \n\
+                Status Code: %s{response.StatusCode.ToString()}. \n\
+                Content: '%s{response.Content}' \n\
+                ErrorMessage: '%s{response.ErrorMessage}'"
+        
+
+let serializeData<'T> (response:IRestResponse) =
+    try
+    ok (JsonConvert.DeserializeObject<'T>(response.Content))
+    with
+    | _ -> fail "Failure deserializing response body"
+        
+let processResponse<'T> =
+    updateRateLimit
+    >> bind validateStatusOK
+    >> bind serializeData<'T>
     
 let execute<'T> request =
     if monthRateLimit < 50 then
         raise (Exception "Monthly OpenDota rate limit exceeded!")
         
-    Thread.Sleep getApiDelay
+    Async.Sleep getApiDelay |> Async.RunSynchronously
     
     let client = RestClient(ApiUrl)
 
     let response = client.Execute(request)
         
-    updateRateLimit response
-    
-    handleErrorsReturnData<'T> response
+    match processResponse<'T> response with
+    | Pass data -> Some data
+    | Fail msg ->
+        let errString = String.Join (", ", msg)
+        printfn $"%s{errString}"
+        None
+    | Warn _ -> None //Not used as of now
 
 let getPlayerMatches (since:DateTime) accountId  =
     async {
@@ -92,7 +119,19 @@ let getPlayerMatches (since:DateTime) accountId  =
         for item in ProjectionInfo do
             request.AddQueryParameter ("project", item) |> ignore
                 
-        return execute<PlayerMatch list> request
-            |> List.filter (fun m ->
-                (DateTime.UnixEpoch.AddSeconds(float m.StartTime)) >= since)
+        return
+            match execute<PlayerMatch list> request with
+            | Some matches ->
+                matches
+                |> List.filter (fun m ->
+                    (DateTime.UnixEpoch.AddSeconds(float m.StartTime)) >= since)
+            | None -> []
+    }
+    
+let getPlayer accountId =
+    async {
+        let path = $"/players/%s{accountId}"
+        let request = RestRequest(path)
+        
+        return execute<Player> request
     }

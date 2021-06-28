@@ -1,4 +1,4 @@
-﻿module Derrick.Services.DataService
+module Derrick.Services.DataService
 
 open Derrick.Shared
 open Npgsql.FSharp
@@ -220,3 +220,42 @@ let getButtonData (customId:string) =
     |> Some
     with
     | :? NoResultsException -> None
+    
+let getLinkedAccount (accountId:string, game:Games) =
+    let gameId = int game
+    
+    try
+    connectionString
+    |> Sql.connect
+    |> Sql.query "SELECT * FROM game_accounts WHERE linked_id = @accountId AND game = @game LIMIT 1"
+    |> Sql.parameters [ "@accountId", Sql.string accountId
+                        "@game", Sql.int gameId ]
+    |> Sql.executeRow (fun read ->
+        {
+            LinkedId = read.string "linked_id"
+            DiscordId = uint64 (read.int64 "discord_id")
+            Game = enum<Games> (read.int "game")
+            CreatedBy = uint64 (read.int64 "created_by")
+            DateCreatedUTC = read.dateTime "date_created_utc"
+        })
+    |> Some
+    with
+    | :? NoResultsException -> None
+    
+let addLinkedAccount (accountId:string) (discordId:uint64) (game:Games) (createdBy:uint64) =
+    let parsedUserId = int64 discordId
+    let gameId = int game
+    let parsedCreated = int64 createdBy
+
+    connectionString
+    |> Sql.connect
+    |> Sql.query "INSERT INTO game_accounts
+                    (linked_id, discord_id, game, date_created_utc, created_by)
+                  VALUES
+                    (@linkedId, @discordId, @game, @dateCreatedUtc, @created_by)"
+    |> Sql.parameters [ "@linkedId", Sql.string accountId
+                        "@discordId", Sql.int64 parsedUserId
+                        "@game", Sql.int gameId
+                        "@dateCreatedUtc", Sql.timestamp System.DateTime.UtcNow
+                        "@created_by", Sql.int64 parsedCreated ]
+    |> Sql.executeNonQuery

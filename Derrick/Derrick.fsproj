@@ -19,6 +19,7 @@
         <Compile Include="Modules\Shared.fs" />
         <Compile Include="Modules\JoinModule.fs" />
         <Compile Include="Modules\SetupModule.fs" />
+        <Compile Include="Modules\LinkModule.fs" />
         <Compile Include="BotCore.fs" />
         <Compile Include="ScheduleCore.fs" />
         <Compile Include="Program.fs" />
