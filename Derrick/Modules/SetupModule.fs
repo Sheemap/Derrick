@@ -41,13 +41,13 @@ module Setup =
         enum<Games> optInt
 
     let scheduleValue (opts:DiscordInteractionDataOption seq) =
-        let defaultCronScheule = CronSchedule.create("0 0 * * 1")
+        let defaultCronSchedule = CronSchedule.create("0 0 * * 2")
         try
         let opt = Seq.find (fun (a:DiscordInteractionDataOption) -> a.Name = scheduleOptName) opts
         let optString = System.Convert.ToString(opt.Value)
         CronSchedule.create(optString)
         with
-        | :? KeyNotFoundException -> defaultCronScheule
+        | :? KeyNotFoundException -> defaultCronSchedule
 
     // Finds the maximum frequency of a cron schedule over a given date range
     let rec maxFrequency (schedule:CronSchedule.CronSchedule) (starting:System.DateTime) ending breakpoint =
