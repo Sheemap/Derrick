@@ -1,11 +1,7 @@
 ﻿module Derrick.Services.GameApiClients.OpenDotaClient
 
 open System
-open System.Collections.Generic
-open System.Diagnostics
 open System.Net
-open System.Threading
-open DSharpPlus.Exceptions
 open Newtonsoft.Json
 open RestSharp
 open Chessie.ErrorHandling

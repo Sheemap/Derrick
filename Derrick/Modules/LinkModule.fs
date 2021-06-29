@@ -2,10 +2,8 @@
 
 open DSharpPlus.Entities
 open DSharpPlus
-open System.Collections.Generic
 open Chessie.ErrorHandling
 open Derrick.Services.GameApiClients
-open Derrick.Services.GameServices
 open Derrick.Shared
 open Derrick.Services
 
@@ -19,10 +17,10 @@ module Link =
             DiscordApplicationCommandOption(accountOptName, "Game Account ID", ApplicationCommandOptionType.String, true)
 
         let dotaChoice =
-            DiscordApplicationCommandOptionChoice("Dota", (int)Games.Dota)
+            DiscordApplicationCommandOptionChoice("Dota", int Games.Dota)
 
         let leagueChoice =
-            DiscordApplicationCommandOptionChoice("League", (int)Games.League)
+            DiscordApplicationCommandOptionChoice("League", int Games.League)
 
         let gameOpt =
             DiscordApplicationCommandOption(gameOptName, "Game to register for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; leagueChoice ])
@@ -58,7 +56,7 @@ module Link =
 
     let validateAccountNotClaimed request =
         match DataService.getLinkedAccount (request.AccountId, request.Game) with
-        | Some linked -> fail "Account is already claimed!"
+        | Some _ -> fail "Account is already claimed!"
         | None -> ok request
         
     let insertLink request =
@@ -83,7 +81,7 @@ module Link =
         | Fail err ->
             let errString = String.concat "\n\n:no_entry_sign: " err
             Shared.updateInteractionResponse interaction $":no_entry_sign: Error(s): %s{errString}"
-        | Warn (r, warn) ->
+        | Warn (_, warn) ->
             let warnString = String.concat "\n\n:warning:" warn
             Shared.updateInteractionResponse interaction $":white_check_mark: Account registered!\n\n:warning: Warning(s): %s{warnString}"
-        | Pass r -> Shared.updateInteractionResponse interaction ":white_check_mark: Account registered!"
+        | Pass _ -> Shared.updateInteractionResponse interaction ":white_check_mark: Account registered!"

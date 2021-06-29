@@ -1,7 +1,6 @@
 ﻿module Derrick.Shared
 
 open System
-open System.Drawing
 open System.Runtime.Caching
 open DSharpPlus.Entities
 

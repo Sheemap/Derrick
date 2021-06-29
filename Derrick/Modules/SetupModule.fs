@@ -18,10 +18,10 @@ module Setup =
             DiscordApplicationCommandOption(channelOptName, "Channel for sending awards", ApplicationCommandOptionType.Channel, true)
 
         let dotaChoice =
-            DiscordApplicationCommandOptionChoice("dota", (int)Games.Dota)
+            DiscordApplicationCommandOptionChoice("Dota", int Games.Dota)
 
         let leagueChoice =
-            DiscordApplicationCommandOptionChoice("league", (int)Games.League)
+            DiscordApplicationCommandOptionChoice("League", int Games.League)
 
         let gameOpt =
             DiscordApplicationCommandOption(gameOptName, "Game to send awards for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; leagueChoice ])
@@ -96,7 +96,7 @@ module Setup =
     let validateNewConfig request =
         let config = DataService.getConfig (request.Channel.Id, request.Game)
         match config with
-        | Some c -> fail "This configuration already exists!"
+        | Some _ -> fail "This configuration already exists!"
         | None -> ok request
 
     let validateCanSend request =
@@ -143,7 +143,7 @@ module Setup =
         | Fail err ->
             let errString = String.concat "\n\n:no_entry_sign: " err
             Shared.updateInteractionResponse interaction $":no_entry_sign: Error(s): %s{errString}"
-        | Warn (r, warn) ->
+        | Warn (_, warn) ->
             let warnString = String.concat "\n\n:warning:" warn
             Shared.updateInteractionResponse interaction $":white_check_mark: Channel config added!\n\n:warning: Warning(s): %s{warnString}"
-        | Pass r -> Shared.updateInteractionResponse interaction ":white_check_mark: Channel config added!"
+        | Pass _ -> Shared.updateInteractionResponse interaction ":white_check_mark: Channel config added!"

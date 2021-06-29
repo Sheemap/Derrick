@@ -41,7 +41,7 @@ let foldMatches playerMatches =
     
 let loadStats sinceDate users =
         users
-        |> List.map (fun (user:(uint64 * GameAccount list)) ->
+        |> List.map (fun (user:uint64 * GameAccount list) ->
             let accountIds = List.map (fun u -> u.LinkedId) (snd user)
             (fst user,
              fetchMatches sinceDate accountIds

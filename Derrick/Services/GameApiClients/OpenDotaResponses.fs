@@ -2,7 +2,6 @@
 
 open System
 open Newtonsoft.Json
-open Newtonsoft.Json
 
 type PlayerMatch =
     {

@@ -1,10 +1,6 @@
 ﻿namespace Derrick.Modules
 
-open System
-open System.Runtime.Caching
-open DSharpPlus.EventArgs
 open DSharpPlus.Entities
-open DSharpPlus
 open System.Threading.Tasks
 
 module Shared =

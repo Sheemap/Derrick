@@ -1,4 +1,4 @@
-module Derrick.Services.DataService
+﻿module Derrick.Services.DataService
 
 open System
 open Derrick.Shared
@@ -57,7 +57,7 @@ let addConfig (channelId:uint64) (game:Games) (cronSchedule:CronSchedule.CronSch
     |> Sql.parameters [ "@channel_id", Sql.int64 parsedChan
                         "@game", Sql.int gameId
                         "@schedule", Sql.text cronSchedule.original
-                        "@date", Sql.timestamp System.DateTime.UtcNow
+                        "@date", Sql.timestamp DateTime.UtcNow
                         "@userId", Sql.int64 parsedUser
                         ]
     |> Sql.executeNonQuery
@@ -111,7 +111,7 @@ let updateLastRun (channelId:uint64, game:Games) =
                   WHERE channel_id = @channelId AND game = @game"
     |> Sql.parameters [ "@channelId", Sql.int64 parsedChan
                         "@game", Sql.int gameId
-                        "@last_sent", Sql.timestampOrNone (Some System.DateTime.UtcNow) ]
+                        "@last_sent", Sql.timestampOrNone (Some DateTime.UtcNow) ]
     |> Sql.executeNonQuery
 
 let addConfigUser (channelId:uint64) (game:Games) (userId:uint64) =
@@ -127,7 +127,7 @@ let addConfigUser (channelId:uint64) (game:Games) (userId:uint64) =
                     (@channel_id, @game, @user_id, @date, @user_id)"
     |> Sql.parameters [ "@channel_id", Sql.int64 parsedChan
                         "@game", Sql.int gameId
-                        "@date", Sql.timestamp System.DateTime.UtcNow
+                        "@date", Sql.timestamp DateTime.UtcNow
                         "@user_id", Sql.int64 parsedUser
                         ]
     |> Sql.executeNonQuery
@@ -179,7 +179,7 @@ let getParamSeq item =
     [ "@id", Sql.uuid item.Id
       "@module", Sql.string item.CommandModule
       "@previous_interaction_id", Sql.int64 parsedInteractionId
-      "@date_created", Sql.timestamp System.DateTime.UtcNow
+      "@date_created", Sql.timestamp DateTime.UtcNow
       "@data", Sql.string item.JsonData
       "@unique_user", Sql.int64OrNone parsedUserId
     ]
@@ -217,7 +217,7 @@ let insertButtonData items =
            ]
 
 let getButtonData (customId:string) =
-    let uuid = System.Guid.Parse(customId)
+    let uuid = Guid.Parse(customId)
     
     // Background task to cleanup any old buttons. Runs on a separate thread
     cleanupOldButtons ()
@@ -276,6 +276,6 @@ let addLinkedAccount (accountId:string) (discordId:uint64) (game:Games) (created
     |> Sql.parameters [ "@linkedId", Sql.string accountId
                         "@discordId", Sql.int64 parsedUserId
                         "@game", Sql.int gameId
-                        "@dateCreatedUtc", Sql.timestamp System.DateTime.UtcNow
+                        "@dateCreatedUtc", Sql.timestamp DateTime.UtcNow
                         "@created_by", Sql.int64 parsedCreated ]
     |> Sql.executeNonQuery

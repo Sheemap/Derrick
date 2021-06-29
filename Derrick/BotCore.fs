@@ -14,7 +14,7 @@ open Derrick.Services
 open Chessie.ErrorHandling
 
 module BotCore =
-    let dconf = new DiscordConfiguration()
+    let dconf = DiscordConfiguration()
     dconf.set_AutoReconnect true
     dconf.set_Token (getEnvValueOrThrow "DERRICK_DISCORD_TOKEN")
     dconf.set_TokenType TokenType.Bot
@@ -22,8 +22,8 @@ module BotCore =
 
     let discord = new DiscordClient(dconf)
 
-    let readyHandler (x: DiscordClient) (y: ReadyEventArgs) =
-        printfn $"Ready! Logged in as %s{x.CurrentUser.Username}#%s{x.CurrentUser.Discriminator}"
+    let readyHandler (client: DiscordClient) (args: ReadyEventArgs) =
+        printfn $"Ready! Logged in as %s{client.CurrentUser.Username}#%s{client.CurrentUser.Discriminator}"
         
         discord.BulkOverwriteGlobalApplicationCommandsAsync([ Setup.command; Join.command ])
         |> Async.AwaitTask
@@ -91,11 +91,11 @@ module BotCore =
                 | Fail err ->
                     let errString = String.concat ", " err
                     Shared.updateInteractionResponse interactionEvent.Interaction errString
-                | Pass validatedInteraction ->
+                | Pass _ ->
                     match buttonInteraction.CommandModule with
                     | Join.commandName -> Join.handleButtonInteraction client interactionEvent.Interaction buttonInteraction
                     | _ -> Shared.updateInteractionResponse interactionEvent.Interaction "Unknown command"
-                | Warn (i, msg) -> Task.CompletedTask //Unused right now
+                | Warn (_, _) -> Task.CompletedTask //Unused right now
 
 
     discord.add_Ready (AsyncEventHandler<DiscordClient, ReadyEventArgs>(readyHandler))
