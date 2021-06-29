@@ -37,7 +37,7 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Release
-        run: dotnet publish -c Release -f net5.0 --no-build -o Release -r linux-x64 Derrick.sln
+        run: dotnet publish -c Release -f net5.0 -o Release -r linux-x64 Derrick.sln
       - name: ssh deploy
         # You may pin to the exact commit or the version.
         # uses: easingthemes/ssh-deploy@c711f2c3391cac2876bf4c833590077f02e4bcb8
