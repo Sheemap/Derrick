@@ -16,7 +16,7 @@ open Chessie.ErrorHandling
 module BotCore =
     let dconf = new DiscordConfiguration()
     dconf.set_AutoReconnect true
-    dconf.set_Token "INVALID" //TODO: Load from somewhere external (env probably)
+    dconf.set_Token (getEnvValueOrThrow "DERRICK_DISCORD_TOKEN")
     dconf.set_TokenType TokenType.Bot
     dconf.MinimumLogLevel <- LogLevel.Information
 

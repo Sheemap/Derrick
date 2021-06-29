@@ -42,3 +42,15 @@ let addCacheItem key (object:Object) expiration onRemove =
         policy.SlidingExpiration <- sliding
         
     MemoryCache.Default.Add(item, policy)
+
+let envVars =
+    Environment.GetEnvironmentVariables()
+    |> Seq.cast<System.Collections.DictionaryEntry>
+    |> Seq.map (fun d -> d.Key :?> string, d.Value :?> string)
+    |> dict
+
+let getEnvValueOrThrow envKey =
+    let succ, value = envVars.TryGetValue envKey
+    if not succ then
+        raise (ApplicationException $"Missing environment variable '%s{envKey}'")
+    value

@@ -5,12 +5,11 @@ open Derrick.Shared
 open Npgsql.FSharp
 open DataTypes
 
-//TODO: Load settings from somewhere external (env probably)
-let host = "10.0.0.169"
-let username = "INVALID"
-let password ="INVALID"
-let dbName = "WOTW"
-let portNum = 5432
+let host = getEnvValueOrThrow "DERRICK_DB_HOST"
+let username = getEnvValueOrThrow "DERRICK_DB_USERNAME"
+let password = getEnvValueOrThrow "DERRICK_DB_PASSWORD"
+let dbName = getEnvValueOrThrow "DERRICK_DB_NAME"
+let portNum = int (getEnvValueOrThrow "DERRICK_DB_PORT")
 
 let connectionString : string =
     Sql.host host
