@@ -19,7 +19,7 @@ let processConfig (config:ChannelConfig) =
 
 let buildAwardMessages award =
     DiscordEmbedBuilder()
-        .WithColor(DiscordColor.Gold)
+        .WithColor(award.Color)
         .WithAuthor(name = award.Subject, iconUrl = award.IconUrl)
         .AddField(award.Name, award.Message)
         .Build()
@@ -36,11 +36,13 @@ let loop =
             let channel = BotCore.discord.GetChannelAsync config.ChannelId |> Async.AwaitTask |> Async.RunSynchronously
             
             if List.length awards > 0 then
-                awards
+                let awardMessages =
+                    awards
                     |> List.map buildAwardMessages
-                    |> List.map channel.SendMessageAsync
-                    |> List.map Async.AwaitTask
-                    |> Async.Sequential
+                
+                for msg in awardMessages do
+                    channel.SendMessageAsync msg
+                    |> Async.AwaitTask
                     |> Async.RunSynchronously
                     |> ignore
             else

@@ -6,7 +6,7 @@ open DSharpPlus.Entities
 
 type Award =
     { Name : string
-      Color : string
+      Color : DiscordColor
       IconUrl : string
       Subject : string
       Message : string }

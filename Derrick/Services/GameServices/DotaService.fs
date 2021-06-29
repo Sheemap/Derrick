@@ -21,8 +21,8 @@ let fetchMatches sinceDate accounts : seq<PlayerMatch> =
     }
     
 let foldMatches playerMatches =
-    let initial = { Kills = List.empty; Deaths = List.empty; Assists = List.empty; Gpm = List.empty;
-        Xpm = List.empty; HeroDamage = List.empty; TowerDamage = List.empty; LastHits = List.empty; HeroHealing = List.empty }
+    let initial = { Kills = List.empty; Deaths = List.empty; Assists = List.empty; Gpm = List.empty; ObserversPurchased = List.empty;
+        Xpm = List.empty; HeroDamage = List.empty; TowerDamage = List.empty; LastHits = List.empty; HeroHealing = List.empty; SentriesPurchased = List.empty }
     
     if Seq.length playerMatches > 0 then
         Some (Seq.fold (fun acc (curr:PlayerMatch) ->
@@ -34,7 +34,9 @@ let foldMatches playerMatches =
               HeroDamage = List.append acc.HeroDamage [curr.HeroDamage]
               TowerDamage = List.append acc.TowerDamage [curr.TowerDamage]
               LastHits = List.append acc.LastHits [curr.LastHits]
-              HeroHealing = List.append acc.HeroHealing [curr.HeroHealing] })
+              HeroHealing = List.append acc.HeroHealing [curr.HeroHealing]
+              ObserversPurchased = List.append acc.ObserversPurchased [curr.PurchaseWardObserver]
+              SentriesPurchased = List.append acc.SentriesPurchased [curr.PurchaseWardSentry] })
             initial playerMatches)
     else
         None
@@ -56,8 +58,17 @@ let generateAwards config =
         |> List.groupBy (fun ga -> ga.DiscordId)
         |> loadStats sinceDate
     
-    if List.length playerStats > 0 then 
-        [MidasAward(0).Award playerStats; FeederAward(0).Award playerStats]
+    if List.length playerStats > 0 then
+        [ MidasAward(0).Award playerStats
+          BigBrainAward(0).Award playerStats
+          BruiserAward(0).Award playerStats
+          SerialKillerAward(0).Award playerStats
+          AccompliceAward(0).Award playerStats
+          BulldozerAward(0).Award playerStats
+          HumbleFarmerAward(0).Award playerStats
+          EThotAward(0).Award playerStats
+          OmnipotentAward(0).Award playerStats
+          FeederAward(0).Award playerStats ]
     else
         []
     
