@@ -1,5 +1,6 @@
 module Derrick.Services.DataService
 
+open System
 open Derrick.Shared
 open Npgsql.FSharp
 open DataTypes
@@ -184,10 +185,26 @@ let getParamSeq item =
       "@unique_user", Sql.int64OrNone parsedUserId
     ]
 
+let cleanupOldButtons () =
+    async {
+        let olderThan = DateTime.UtcNow.AddMinutes(-15.0)
+        
+        connectionString
+        |> Sql.connect
+        |> Sql.query "DELETE FROM button_interactions WHERE date_created_utc < @date"
+        |> Sql.parameters ["@date", Sql.timestamp olderThan ]
+        |> Sql.executeNonQuery
+        |> ignore
+    }
+
 let insertButtonData items =
     let parameters =
         items
         |> List.map getParamSeq
+    
+    // Background task to cleanup any old buttons. Runs on a separate thread
+    cleanupOldButtons ()
+        |> Async.Start
     
     connectionString
     |> Sql.connect
@@ -202,6 +219,10 @@ let insertButtonData items =
 
 let getButtonData (customId:string) =
     let uuid = System.Guid.Parse(customId)
+    
+    // Background task to cleanup any old buttons. Runs on a separate thread
+    cleanupOldButtons ()
+        |> Async.Start
     
     try
     connectionString
