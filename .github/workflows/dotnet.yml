@@ -61,7 +61,7 @@ jobs:
         uses: JimCronqvist/action-ssh@0.1.1
         with:
           # Command(s) to execute on the remote server.
-          command: systemctl restart Derrick
+          command: ${{ secrets.DEPLOYMENT_SSH_COMMAND }}
           # Hostname or IP address of the remote server(s). Separate multiple servers with a blank space. Example: 'user@mydomain.com:22 user@otherdomain.com:2222'
           hosts: ${{ secrets.DEPLOYMENT_SSH_USER }}@${{ secrets.DEPLOYMENT_SSH_HOST }}:${{ secrets.DEPLOYMENT_SSH_PORT }}
           # The private key (id_rsa) content for authenticating to the SSH server(s). Recommended to store it as a GitHub Secret.
