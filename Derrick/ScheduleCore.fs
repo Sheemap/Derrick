@@ -1,4 +1,4 @@
-﻿module Derrick.ScheduleCore
+module Derrick.ScheduleCore
 
 open System.Threading
 open DSharpPlus.Entities
@@ -43,12 +43,14 @@ let buildAwardMessages award =
         .AddField(award.Name, msgGen award.Score)
         .Build()
 
-let loop =
+let loop () =
     while true do
+        try
         let toProcess =
             DataService.getAllConfigs ()
             |> List.filter (fun c ->
                 c.Schedule.NextTime(defaultArg c.LastSentUTC c.DateCreatedUTC) <= Some DateTime.UtcNow)
+        
         
         for config in toProcess do
             let awards = processConfig config
@@ -70,3 +72,5 @@ let loop =
             DataService.updateLastRun (config.ChannelId, config.Game) |> ignore
         
         Thread.Sleep(30000)
+        with
+        | exn -> printfn $"Exception in main loop occurred! Message: %s{exn.Message}"

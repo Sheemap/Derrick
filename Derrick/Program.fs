@@ -5,5 +5,5 @@ open Derrick
 [<EntryPoint>]
 let main argv =
     BotCore.discord.ConnectAsync() |> Async.AwaitTask |> Async.RunSynchronously
-    ScheduleCore.loop
+    ScheduleCore.loop()
     0 // return an integer exit code
