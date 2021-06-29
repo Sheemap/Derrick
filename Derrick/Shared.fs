@@ -4,12 +4,43 @@ open System
 open System.Runtime.Caching
 open DSharpPlus.Entities
 
+type AwardType =
+    | DotaMidas = 100
+    | DotaBigBrain = 101
+    | DotaBruiser = 102
+    | DotaSerialKiller = 103
+    | DotaAccomplice = 104
+    | DotaBulldozer = 105
+    | DotaHumbleFarmer = 106
+    | DotaEThot = 107
+    | DotaOmnipotent = 108
+    | DotaFeeder = 109
+
+type UserScore =
+    { Id: uint64
+      Avg: float
+      Max: int
+      Count: int }
+
 type Award =
-    { Name : string
+    { Type: AwardType
+      Name : string
       Color : DiscordColor
       IconUrl : string
       Subject : string
-      Message : string }
+      Score : UserScore }
+
+let getWinningScore propertySelector threshold (playerStats:(uint64 * 'T) list) =
+    playerStats
+    |> List.map (fun (userId, data) ->
+        (userId, propertySelector data))
+    |> List.map (fun (userId, scores) ->
+        { Id = userId
+          Avg = (List.average (List.map float scores))
+          Max = (List.max scores)
+          Count = (List.length scores) })
+    |> List.filter (fun score -> score.Count >= threshold)
+    |> List.maxBy (fun score -> score.Avg)
 
 type Games =
     | Dota = 1

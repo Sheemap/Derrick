@@ -34,3 +34,13 @@ type GameAccount =
       Game: Games
       DateCreatedUTC: DateTime
       CreatedBy: uint64 }
+    
+type AwardHistory =
+    { Id: int
+      AwardType: AwardType
+      WinnerId: uint64
+      ChannelId: uint64
+      Game: Games
+      Average: float
+      Max: int
+      Count: int }

@@ -279,3 +279,37 @@ let addLinkedAccount (accountId:string) (discordId:uint64) (game:Games) (created
                         "@dateCreatedUtc", Sql.timestamp DateTime.UtcNow
                         "@created_by", Sql.int64 parsedCreated ]
     |> Sql.executeNonQuery
+    
+    
+let getAwardParamSeq (award, channelId:uint64, game:Games) =
+    let parsedType = int award.Type
+    let parsedWinner = int64 award.Score.Id
+    let parsedChannel = int64 channelId
+    let parsedGame = int game
+
+    [ "@award_type", Sql.int parsedType
+      "@winner_id", Sql.int64 parsedWinner
+      "@channel_id", Sql.int64 parsedChannel
+      "@game", Sql.int parsedGame
+      "@average", Sql.double award.Score.Avg
+      "@max", Sql.int award.Score.Max
+      "@count", Sql.int award.Score.Count
+      "@date_created_utc", Sql.timestamp DateTime.UtcNow
+    ]
+    
+//let addAwardHistory (award, channelId:uint64, game:Games) list =
+let addAwardHistory awardData =
+    let parameters =
+        awardData
+        |> List.map getAwardParamSeq
+    
+    connectionString
+    |> Sql.connect
+    |> Sql.executeTransaction
+           [
+           "INSERT INTO award_history
+              (award_type, winner_id, channel_id, game, average, max, count, date_created_utc)
+            VALUES
+              (@award_type, @winner_id, @channel_id, @game, @average, @max, @count, @date_created_utc)",
+              parameters
+           ]
