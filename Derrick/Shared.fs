@@ -24,10 +24,15 @@ type CacheExpiration =
     | AbsoluteExpiration of DateTimeOffset
     | SlidingExpiration of TimeSpan
     | AbsoluteAndSlidingExpiration of DateTimeOffset * TimeSpan
-    
-let addCacheItem key (object:Object) expiration =
+ 
+let cacheItemCallback<'T> (operation:'T -> unit) (args:CacheEntryRemovedArguments) =
+    let item = args.CacheItem.Value :?> 'T
+    operation item
+
+let addCacheItem key (object:Object) expiration onRemove =
     let item = CacheItem (key, object)
     let policy = CacheItemPolicy()
+    policy.RemovedCallback <- CacheEntryRemovedCallback(onRemove)
     
     match expiration with
     | AbsoluteExpiration expiration -> policy.AbsoluteExpiration <- expiration

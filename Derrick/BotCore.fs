@@ -50,12 +50,16 @@ module BotCore =
         |> Async.AwaitTask
         |> Async.RunSynchronously
     
+    let cleanupInteraction (interaction: DiscordInteraction) =
+        interaction.DeleteOriginalResponseAsync() |> Async.AwaitTask |> Async.RunSynchronously
+    
     let interactionHandler (client: DiscordClient) (interactionEvent: InteractionCreateEventArgs) : Task =
         acknowledgeInteraction interactionEvent.Interaction
         addCacheItem
             (string interactionEvent.Interaction.Id)
             interactionEvent.Interaction
-            (AbsoluteExpiration (DateTimeOffset.Now.AddMinutes(15.0)))
+            (AbsoluteExpiration (DateTimeOffset.Now.AddMinutes(14.0)))
+            (cacheItemCallback<DiscordInteraction> cleanupInteraction)
         |> ignore
         
         printfn $"Interaction received. Command name: %s{interactionEvent.Interaction.Data.Name}"
@@ -71,7 +75,8 @@ module BotCore =
         addCacheItem
             (string interactionEvent.Interaction.Id)
             interactionEvent.Interaction
-            (AbsoluteExpiration (DateTimeOffset.Now.AddMinutes(15.0)))
+            (AbsoluteExpiration (DateTimeOffset.Now.AddMinutes(14.0)))
+            (cacheItemCallback<DiscordInteraction> cleanupInteraction)
         |> ignore
         
         printfn $"Interaction received. Custom Id: %s{interactionEvent.Interaction.Data.CustomId}"
