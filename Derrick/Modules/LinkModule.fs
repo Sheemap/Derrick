@@ -25,7 +25,7 @@ module Link =
         let gameOpt =
             DiscordApplicationCommandOption(gameOptName, "Game to register for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; ])
 
-        DiscordApplicationCommand(commandName, "Link a game account to your discord account", [ gameOpt; accountOpt ])
+        DiscordApplicationCommand(commandName, "Link a game account to your discord account", [ gameOpt; accountOpt ], true)
 
     let accountIdValue (opts:DiscordInteractionDataOption seq) =
         let opt = Seq.find (fun (a:DiscordInteractionDataOption) -> a.Name = accountOptName) opts

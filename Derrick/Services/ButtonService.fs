@@ -2,6 +2,7 @@
 
 open System
 open System.Runtime.Caching
+open DSharpPlus
 open DSharpPlus.Entities
 open DataTypes
 open Derrick.Services

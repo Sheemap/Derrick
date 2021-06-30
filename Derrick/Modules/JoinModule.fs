@@ -14,7 +14,7 @@ module Join =
     let [<Literal>] commandName = "join"
 
     let command =
-        DiscordApplicationCommand(commandName, "Register for game awards")
+        DiscordApplicationCommand(commandName, "Register for game awards", defaultPermission = true)
        
     type Request =
         { Interaction : DiscordInteraction }
