@@ -23,7 +23,7 @@ module Link =
             DiscordApplicationCommandOptionChoice("League", int Games.League)
 
         let gameOpt =
-            DiscordApplicationCommandOption(gameOptName, "Game to register for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; leagueChoice ])
+            DiscordApplicationCommandOption(gameOptName, "Game to register for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; ])
 
         DiscordApplicationCommand(commandName, "Link a game account to your discord account", [ gameOpt; accountOpt ])
 
