@@ -6,6 +6,7 @@ open Newtonsoft.Json
 open RestSharp
 open Chessie.ErrorHandling
 open Derrick.Services.GameApiClients.OpenDotaResponses
+open Serilog
 
 let [<Literal>] ApiUrl = "https://api.opendota.com/api"
 let ProjectionInfo = [
@@ -100,7 +101,7 @@ let execute<'T> request =
     | Pass data -> Some data
     | Fail msg ->
         let errString = String.Join (", ", msg)
-        printfn $"%s{errString}"
+        Log.Warning("Failed executing web request. RequestUrl: {Url}. Error: {Error}", response.ResponseUri, $"%s{errString}")
         None
     | Warn _ -> None //Not used as of now
 

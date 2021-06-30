@@ -7,6 +7,7 @@ open System
 open Derrick.Shared
 open Derrick.Services
 open Derrick.Services.GameServices
+open Serilog
 
 let Adjectives =
     [ "an awesome"; "a fantastic"; "a delicious"; "a delightful"; "a scrumptious"; "a boolin"; "a sick"; "a rad"; "a tubular"; "a cool"; "a nice"; "a super"; "a neato"; "an okayish"; "an alright"; "a fine"; "a decent"; "a mediocre"; "a chill"; "an amazing" ]
@@ -53,6 +54,7 @@ let loop () =
         
         
         for config in toProcess do
+            Log.Information("Processing config. ChannelId: {ChannelId}. Game: {Game}", config.ChannelId, config.Game)
             let awards = processConfig config
             let channel = BotCore.discord.GetChannelAsync config.ChannelId |> Async.AwaitTask |> Async.RunSynchronously
             
@@ -73,4 +75,4 @@ let loop () =
         
         Thread.Sleep(30000)
         with
-        | exn -> printfn $"Exception in main loop occurred! Message: %s{exn.Message}"
+        | exn -> Log.Error(exn, "Exception in main loop occurred!")

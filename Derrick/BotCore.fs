@@ -12,18 +12,19 @@ open Microsoft.Extensions.Logging
 open Derrick.Modules
 open Derrick.Services
 open Chessie.ErrorHandling
+open Serilog
 
 module BotCore =
     let dconf = DiscordConfiguration()
     dconf.set_AutoReconnect true
     dconf.set_Token (getEnvValueOrThrow "DERRICK_DISCORD_TOKEN")
     dconf.set_TokenType TokenType.Bot
-    dconf.MinimumLogLevel <- LogLevel.Information
+    dconf.LoggerFactory <- (new LoggerFactory()).AddSerilog()
 
     let discord = new DiscordClient(dconf)
 
     let readyHandler (client: DiscordClient) (args: ReadyEventArgs) =
-        printfn $"Ready! Logged in as %s{client.CurrentUser.Username}#%s{client.CurrentUser.Discriminator}"
+        Serilog.Log.Information("Ready! Logged in as {BotName}", $"%s{client.CurrentUser.Username}#%s{client.CurrentUser.Discriminator}")
         
         discord.BulkOverwriteGlobalApplicationCommandsAsync([ Setup.command; Join.command ])
         |> Async.AwaitTask
@@ -62,7 +63,7 @@ module BotCore =
             (cacheItemCallback<DiscordInteraction> cleanupInteraction)
         |> ignore
         
-        printfn $"Interaction received. Command name: %s{interactionEvent.Interaction.Data.Name}"
+        Log.Information("Interaction received. Name: {InteractionName}" ,$"%s{interactionEvent.Interaction.Data.Name}")
 
         match interactionEvent.Interaction.Data.Name with
         | Setup.commandName -> Setup.handler client interactionEvent.Interaction
@@ -79,7 +80,7 @@ module BotCore =
             (cacheItemCallback<DiscordInteraction> cleanupInteraction)
         |> ignore
         
-        printfn $"Interaction received. Custom Id: %s{interactionEvent.Interaction.Data.CustomId}"
+        Log.Information("Component interaction received. Custom Id: {CustomID}", $"%s{interactionEvent.Interaction.Data.CustomId}")
         
         let buttonInteraction =
             DataService.getButtonData interactionEvent.Interaction.Data.CustomId
