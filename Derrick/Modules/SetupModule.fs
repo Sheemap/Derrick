@@ -80,6 +80,21 @@ module Setup =
           Schedule : CronSchedule.CronSchedule
           Interaction : DiscordInteraction }
 
+    let validatePermission request =
+        let guildMember =
+            request.Interaction.User.Id
+            |> request.Interaction.Guild.GetMemberAsync
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+        if (isNull guildMember) then
+            fail "Error validating permission. Please try again"
+        else
+            let perms = request.Channel.PermissionsFor(guildMember)
+            if perms.HasPermission Permissions.ManageChannels then
+                ok request
+            else
+                fail "Permission denied. You must have the 'Manage Channel' permission to do this!"
+    
     let validateParse request =
         if not (System.String.IsNullOrWhiteSpace(request.Schedule.fail)) then fail request.Schedule.fail
         else ok request
@@ -122,7 +137,8 @@ module Setup =
         | _ -> fail "Internal error occured! Please contact Seka"
 
     let executeRequest =
-        validateParse
+        validatePermission
+        >> bind validateParse
         >> bind validateFrequency
         >> bind validateTextChannel
         >> bind validateNewConfig

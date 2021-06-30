@@ -26,7 +26,7 @@ module BotCore =
     let readyHandler (client: DiscordClient) (args: ReadyEventArgs) =
         Serilog.Log.Information("Ready! Logged in as {BotName}", $"%s{client.CurrentUser.Username}#%s{client.CurrentUser.Discriminator}")
         
-        discord.BulkOverwriteGlobalApplicationCommandsAsync([ Setup.command; Join.command ])
+        discord.BulkOverwriteGlobalApplicationCommandsAsync([ Setup.command; Join.command; Link.command ])
         |> Async.AwaitTask
         |> Async.RunSynchronously
         |> ignore
