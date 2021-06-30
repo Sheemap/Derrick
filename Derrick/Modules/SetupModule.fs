@@ -29,7 +29,7 @@ module Setup =
         let timeOpt =
             DiscordApplicationCommandOption(scheduleOptName, "Cron schedule for when to send", ApplicationCommandOptionType.String, false)
 
-        DiscordApplicationCommand(commandName, "Configure a WOTW game on a channel", [ channelOpt; gameOpt; timeOpt ])
+        DiscordApplicationCommand(commandName, "Configure game awards to send on a channel", [ channelOpt; gameOpt; timeOpt ])
 
     let channelIdValue (opts:DiscordInteractionDataOption seq) =
         let opt = Seq.find (fun (a:DiscordInteractionDataOption) -> a.Name = channelOptName) opts

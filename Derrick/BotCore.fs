@@ -24,12 +24,15 @@ module BotCore =
     let discord = new DiscordClient(dconf)
 
     let readyHandler (client: DiscordClient) (args: ReadyEventArgs) =
-        Serilog.Log.Information("Ready! Logged in as {BotName}", $"%s{client.CurrentUser.Username}#%s{client.CurrentUser.Discriminator}")
+        Log.Information("Ready! Logged in as {BotName}", $"%s{client.CurrentUser.Username}#%s{client.CurrentUser.Discriminator}")
         
-        discord.BulkOverwriteGlobalApplicationCommandsAsync([ Setup.command; Join.command; Link.command ])
-        |> Async.AwaitTask
-        |> Async.RunSynchronously
-        |> ignore
+        let commList =
+            discord.BulkOverwriteGlobalApplicationCommandsAsync([ Setup.command; Join.command; Link.command ])
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+            |> Seq.map (fun c -> c.Name)
+        
+        Log.Information("Updated commands. Available slash commands: {@CommandList}", commList)
 
         Task.CompletedTask
 
