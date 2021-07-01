@@ -10,6 +10,11 @@ module Shared =
         res.Content <- message
         interaction.EditOriginalResponseAsync(res) :> Task
         
+    let sendFollowupInteraction (interaction:DiscordInteraction) (message:string)  =
+        let res = DiscordFollowupMessageBuilder()
+        res.Content <- message
+        interaction.CreateFollowupMessageAsync(res) :> Task
+                
     let deleteInteraction (interaction:DiscordInteraction option) =
         match interaction with
         | None -> Task.CompletedTask

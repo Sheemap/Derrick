@@ -5,6 +5,7 @@ open System.Threading.Tasks
 open DSharpPlus
 open DSharpPlus.Entities
 open DSharpPlus.EventArgs
+open DSharpPlus.Exceptions
 open DataTypes
 open Emzi0767.Utilities
 open Derrick.Shared
@@ -68,11 +69,19 @@ module BotCore =
         
         Log.Information("Interaction received. Name: {InteractionName}" ,$"%s{interactionEvent.Interaction.Data.Name}")
 
+        try
         match interactionEvent.Interaction.Data.Name with
         | Setup.commandName -> Setup.handler client interactionEvent.Interaction
         | Join.commandName -> Join.handleInitial client interactionEvent.Interaction
         | Link.commandName -> Link.handler client interactionEvent.Interaction
         | _ -> Shared.updateInteractionResponse interactionEvent.Interaction "Unknown command"
+        with
+        | :? UnauthorizedException ->
+            Log.Warning("Unauthorized exception received from DSharp.")
+            Shared.updateInteractionResponse interactionEvent.Interaction "Unknown unauthorized error received. Do I have permission on the channel you're operating on?"
+        | exn ->
+            Log.Error(exn, "Exception occurred while handling a slash command.")            
+            Shared.updateInteractionResponse interactionEvent.Interaction "Internal error occured! Please alert Seka."
 
     let componentInteractionHandler (client: DiscordClient) (interactionEvent: InteractionCreateEventArgs) =
         acknowledgeInteraction interactionEvent.Interaction
@@ -88,6 +97,7 @@ module BotCore =
         let buttonInteraction =
             DataService.getButtonData interactionEvent.Interaction.Data.CustomId
             
+        try
         match buttonInteraction with
         | None -> Shared.updateInteractionResponse interactionEvent.Interaction "Unknown command"
         | Some buttonInteraction -> 
@@ -100,6 +110,13 @@ module BotCore =
                     | Join.commandName -> Join.handleButtonInteraction client interactionEvent.Interaction buttonInteraction
                     | _ -> Shared.updateInteractionResponse interactionEvent.Interaction "Unknown command"
                 | Warn (_, _) -> Task.CompletedTask //Unused right now
+        with
+        | :? UnauthorizedException ->
+            Log.Warning("Unauthorized exception received from DSharp.")
+            Shared.sendFollowupInteraction interactionEvent.Interaction "Unknown unauthorized error received. Do I have permission on the channel you're operating on?"
+        | exn ->
+            Log.Error(exn, "Exception occurred while handling a component interaction.")
+            Shared.sendFollowupInteraction interactionEvent.Interaction "Internal error occured! Please alert Seka."
 
 
     discord.add_Ready (AsyncEventHandler<DiscordClient, ReadyEventArgs>(readyHandler))
