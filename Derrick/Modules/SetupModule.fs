@@ -6,6 +6,8 @@ open System.Collections.Generic
 open Chessie.ErrorHandling
 open Derrick.Shared
 open Derrick.Services
+open Microsoft.VisualBasic
+open Serilog
 
 module Setup =
     let [<Literal>] commandName = "setup"
@@ -115,11 +117,16 @@ module Setup =
         | None -> ok request
 
     let validateCanSend request =
-        let perms = request.Channel.PermissionsFor(request.Interaction.Guild.CurrentMember)
-        if perms.HasPermission(Permissions.AccessChannels) &&
-           perms.HasPermission(Permissions.SendMessages)
-            then ok request
-        else fail "I don't have permission to send to that channel!"
+        let succ, dMember = request.Interaction.Guild.Members.TryGetValue(request.Interaction.Guild.CurrentMember.Id)
+        if succ then
+            let perms = request.Channel.PermissionsFor(dMember)
+            if perms.HasPermission(Permissions.AccessChannels) &&
+               perms.HasPermission(Permissions.SendMessages)
+                then ok request
+            else fail "I don't have permission to send to that channel!"
+        else
+            Log.Error("Failed to retrieve current bot member from the guild list.")
+            fail "Internal error occurred. Please contact Seka."
 
     let checkManageChannel request =
         let perms = request.Channel.PermissionsFor(request.Interaction.Guild.CurrentMember)
