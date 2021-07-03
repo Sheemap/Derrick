@@ -12,10 +12,13 @@
         <Compile Include="Data\DataTypes.fs" />
         <Compile Include="Services\GameApiClients\OpenDotaResponses.fs" />
         <Compile Include="Services\GameApiClients\OpenDotaClient.fs" />
+        <Compile Include="Services\GameApiClients\LeagueClient.fs" />
         <Compile Include="Services\DataService.fs" />
         <Compile Include="Services\ButtonService.fs" />
         <Compile Include="Services\GameServices\DotaTypes.fs" />
         <Compile Include="Services\GameServices\DotaService.fs" />
+        <Compile Include="Services\GameServices\LeagueTypes.fs" />
+        <Compile Include="Services\GameServices\LeagueService.fs" />
         <Compile Include="Modules\Shared.fs" />
         <Compile Include="Modules\JoinModule.fs" />
         <Compile Include="Modules\SetupModule.fs" />
@@ -32,6 +35,7 @@
       <PackageReference Include="Npgsql.FSharp" Version="4.0.0" />
       <PackageReference Include="NpgsqlFSharpAnalyzer" Version="3.26.1" />
       <PackageReference Include="RestSharp" Version="106.11.7" />
+      <PackageReference Include="RiotSharp" Version="5.0.0-alpha" />
       <PackageReference Include="Serilog" Version="2.10.0" />
       <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
       <PackageReference Include="Serilog.Exceptions" Version="7.0.0" />

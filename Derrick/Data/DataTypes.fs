@@ -44,3 +44,14 @@ type AwardHistory =
       Average: float
       Max: int
       Count: int }
+    
+type Match<'T> =
+    { Id: string
+      Game: Games
+      Data: 'T
+      DatePlayedUTC: DateTime }
+    
+type MatchPlayer =
+    { MatchId: string
+      PlayerId: string
+      Game: Games }

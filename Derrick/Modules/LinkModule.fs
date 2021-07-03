@@ -23,7 +23,7 @@ module Link =
             DiscordApplicationCommandOptionChoice("League", int Games.League)
 
         let gameOpt =
-            DiscordApplicationCommandOption(gameOptName, "Game to register for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; ])
+            DiscordApplicationCommandOption(gameOptName, "Game to register for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; leagueChoice ])
 
         DiscordApplicationCommand(commandName, "Link a game account to your discord account", [ gameOpt; accountOpt ], true)
 
@@ -48,6 +48,11 @@ module Link =
                 OpenDotaClient.getPlayer request.AccountId
                 |> Async.RunSynchronously
                 |> Option.isSome
+            | Games.League ->
+                LeagueClient.getSummonerByPuuid request.AccountId
+                |> Async.RunSynchronously
+                |> isNull
+                |> not
             | _ -> false
             
         

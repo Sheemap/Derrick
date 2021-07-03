@@ -1,7 +1,9 @@
 ﻿module Derrick.Services.DataService
 
 open System
+open Derrick.Services.GameApiClients.OpenDotaResponses
 open Derrick.Shared
+open Newtonsoft.Json
 open Npgsql.FSharp
 open DataTypes
 
@@ -313,3 +315,70 @@ let addAwardHistory awardData =
               (@award_type, @winner_id, @channel_id, @game, @average, @max, @count, @date_created_utc)",
               parameters
            ]
+         
+
+let matchSqlParams gameMatch =
+    let jsonMatch = JsonConvert.SerializeObject(gameMatch.Data)
+    let gameId = int gameMatch.Game
+    
+    [ "@match_id", Sql.string gameMatch.Id
+      "@game", Sql.int gameId
+      "@match_data", Sql.string jsonMatch
+      "@match_timestamp_utc", Sql.timestamp gameMatch.DatePlayedUTC
+      "@date_created_utc", Sql.timestamp DateTime.UtcNow ]
+           
+let insertMatches (matches:Match<'T> list) =
+    let matchParams =
+        matches
+        |> List.map matchSqlParams
+    
+    connectionString
+    |> Sql.connect
+    |> Sql.executeTransaction
+           [
+           "INSERT INTO matches
+              (match_id, game, match_data, match_timestamp_utc, date_created_utc)
+            VALUES
+              (@match_id, @game, @match_data, @match_timestamp_utc, @date_created_utc)",
+              matchParams
+           ]
+
+let insertMatchPlayers players =
+    let playerParameters =
+        players
+        |> List.map (fun player ->
+            [ "@match_id", Sql.string player.MatchId
+              "@game", Sql.int (int player.Game)
+              "@player_id", Sql.string player.PlayerId ])
+        
+    connectionString
+    |> Sql.connect
+    |> Sql.executeTransaction
+       [
+           "INSERT INTO match_players
+              (match_id, game, player_id)
+            VALUES
+              (@match_id, @game, @player_id)",
+              playerParameters
+       ]
+    
+    
+let getMatches<'T> dateSince playerIds =
+    let arrayPlayerIds = (Seq.toArray playerIds)
+    
+    connectionString
+    |> Sql.connect
+    |> Sql.query "SELECT DISTINCT m.*
+                  FROM matches m
+                  INNER JOIN match_players mp ON mp.match_id = m.match_id AND mp.game = m.game
+                  WHERE m.match_timestamp_utc > @date_since
+                  AND mp.player_id = ANY(@player_ids)"
+    |> Sql.parameters [ "@date_since", Sql.timestamp dateSince
+                        "@player_ids", Sql.stringArray arrayPlayerIds ]
+    |> Sql.execute (fun read ->
+        {
+            Id = read.string "match_id"
+            Game = enum<Games>(read.int "game")
+            Data = JsonConvert.DeserializeObject<'T>(read.string "match_data")
+            DatePlayedUTC = read.dateTime "match_timestamp_utc"
+        })

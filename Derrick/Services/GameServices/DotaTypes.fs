@@ -3,7 +3,7 @@
 open DSharpPlus.Entities
 open Derrick.Shared
 
-type UserData =
+type DotaUserData =
     { Kills: int list
       Deaths: int list
       Assists: int list

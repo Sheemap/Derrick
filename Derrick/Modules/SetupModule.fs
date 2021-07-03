@@ -26,7 +26,7 @@ module Setup =
             DiscordApplicationCommandOptionChoice("League", int Games.League)
 
         let gameOpt =
-            DiscordApplicationCommandOption(gameOptName, "Game to send awards for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; ])
+            DiscordApplicationCommandOption(gameOptName, "Game to send awards for", ApplicationCommandOptionType.Integer, true, [ dotaChoice; leagueChoice ])
 
         let timeOpt =
             DiscordApplicationCommandOption(scheduleOptName, "Cron schedule for when to send", ApplicationCommandOptionType.String, false)

@@ -31,7 +31,7 @@ let processConfig (config:ChannelConfig) =
     let awards =
         match config.Game with
         | Games.Dota -> DotaService.generateAwards config
-        | Games.League -> []
+        | Games.League -> LeagueService.generateAwards config
         | _ -> []
     
     saveAwardHistory config awards
@@ -75,4 +75,6 @@ let loop () =
         
         Thread.Sleep(30000)
         with
-        | exn -> Log.Error(exn, "Exception in main loop occurred!")
+        | exn ->
+            Log.Error(exn, "Exception in main loop occurred!")
+            Thread.Sleep(30000)

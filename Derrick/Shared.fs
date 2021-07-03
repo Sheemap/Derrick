@@ -15,6 +15,15 @@ type AwardType =
     | DotaEThot = 107
     | DotaOmnipotent = 108
     | DotaFeeder = 109
+    
+    | LeagueMidas = 200
+    | LeagueBruiser = 201
+    | LeagueHumbleFarmer = 202
+    | LeagueSerialKiller = 203
+    | LeagueAccomplice = 204
+    | LeagueOmnipotent = 205
+    | LeagueFeeder = 206
+    | LeagueBulldozer = 207
 
 type UserScore =
     { Id: uint64
