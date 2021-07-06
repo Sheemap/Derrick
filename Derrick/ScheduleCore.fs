@@ -40,8 +40,8 @@ let processConfig (config:ChannelConfig) =
 let buildAwardMessages award =
     DiscordEmbedBuilder()
         .WithColor(award.Color)
-        .WithAuthor(name = award.Subject, iconUrl = award.IconUrl)
-        .AddField(award.Name, msgGen award.Score)
+        .WithAuthor(name = award.Name, iconUrl = award.IconUrl)
+        .AddField(award.Subject, msgGen award.Score)
         .Build()
 
 let loop () =
