@@ -111,11 +111,18 @@ type EThotAward(threshold) =
           IconUrl = "https://i.imgur.com/YPi6w8w.png"
           Subject = "(Hero Healing)"
           Score = winningScore }
+    
+let getCombinedWardList stat =
+    seq{
+        for i = 0 to stat.ObserversPurchased.Length-1 do
+            yield stat.ObserversPurchased.[i] + stat.SentriesPurchased.[i]
+    }
+    |> Seq.toList
         
 type OmnipotentAward(threshold) =
     member this.Award playerStats =
         let winningScore =
-            getWinningScore (fun d -> List.concat [d.ObserversPurchased; d.SentriesPurchased]) threshold playerStats
+            getWinningScore getCombinedWardList threshold playerStats
             
         { Name = "Omnipotent"
           Type = AwardType.DotaOmnipotent
