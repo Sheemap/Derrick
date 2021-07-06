@@ -26,6 +26,16 @@ let foldMatches playerMatches =
     
     if Seq.length playerMatches > 0 then
         Some (Seq.fold (fun acc (curr:PlayerMatch) ->
+            let obsPurchased =
+                if curr.PurchaseWardObserver.HasValue
+                then curr.PurchaseWardObserver.Value
+                else 0
+                
+            let sentPurchased =
+                if curr.PurchaseWardSentry.HasValue
+                then curr.PurchaseWardSentry.Value
+                else 0
+            
             { Kills = List.append acc.Kills [curr.Kills]
               Deaths = List.append acc.Deaths [curr.Deaths]
               Assists = List.append acc.Assists [curr.Assists]
@@ -35,8 +45,8 @@ let foldMatches playerMatches =
               TowerDamage = List.append acc.TowerDamage [curr.TowerDamage]
               LastHits = List.append acc.LastHits [curr.LastHits]
               HeroHealing = List.append acc.HeroHealing [curr.HeroHealing]
-              ObserversPurchased = List.append acc.ObserversPurchased [curr.PurchaseWardObserver]
-              SentriesPurchased = List.append acc.SentriesPurchased [curr.PurchaseWardSentry] })
+              ObserversPurchased = List.append acc.ObserversPurchased [obsPurchased]
+              SentriesPurchased = List.append acc.SentriesPurchased [sentPurchased] })
             initial playerMatches)
     else
         None

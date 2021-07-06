@@ -80,7 +80,9 @@ let serializeData<'T> (response:IRestResponse) =
     try
     ok (JsonConvert.DeserializeObject<'T>(response.Content))
     with
-    | _ -> fail "Failure deserializing response body"
+    | exn ->
+        Log.Error(exn, "Failed deserializing OpenDota Response")
+        fail "Failure deserializing response body"
         
 let processResponse<'T> =
     updateRateLimit

@@ -54,10 +54,10 @@ type PlayerMatch =
       LastHits: int
       
       [<JsonProperty("purchase_ward_observer")>]
-      PurchaseWardObserver: int
+      PurchaseWardObserver: Nullable<int>
       
       [<JsonProperty("purchase_ward_sentry")>]
-      PurchaseWardSentry: int }
+      PurchaseWardSentry: Nullable<int> }
    
 type Profile =
     { [<JsonProperty("account_id")>]
