@@ -7,19 +7,6 @@ open Derrick.Services.GameApiClients.OpenDotaResponses
 open Derrick.Services.GameApiClients.OpenDotaClient
 open Derrick.Services.GameServices.DotaTypes
 
-let fetchMatches sinceDate accounts : seq<PlayerMatch> =
-    let unFlattenedMatches =
-        accounts
-        |> List.map (getPlayerMatches sinceDate)
-        |> Async.Parallel
-        |> Async.RunSynchronously
-        
-    seq{
-        for matchList in unFlattenedMatches do
-            for gameMatch in matchList do
-                yield gameMatch
-    }
-    
 let foldMatches playerMatches =
     let initial = { Kills = List.empty; Deaths = List.empty; Assists = List.empty; Gpm = List.empty; ObserversPurchased = List.empty;
         Xpm = List.empty; HeroDamage = List.empty; TowerDamage = List.empty; LastHits = List.empty; HeroHealing = List.empty; SentriesPurchased = List.empty }
@@ -50,23 +37,21 @@ let foldMatches playerMatches =
             initial playerMatches)
     else
         None
+
+// THIS MUST BE THE ONLY UNPURE FUNCTION
+// PIPELINE EVERYTHING, ALL UNPURE OPERATIONS FOR DOTA TAKE PLACE HERE
+let generateAwards config =
+    let sinceDate = defaultArg config.LastSentUTC config.DateCreatedUTC
     
-let loadStats sinceDate users =
-        users
-        |> List.map (fun (user:uint64 * GameAccount list) ->
-            let accountIds = List.map (fun u -> u.LinkedId) (snd user)
-            (fst user,
-             fetchMatches sinceDate accountIds
-             |> foldMatches))
+    let playerStats =
+        DataService.getGameAccounts (config.ChannelId, config.Game) //UNPURE
+        |> List.map (fun acc ->
+            (acc.DiscordId,
+             getPlayerMatches sinceDate acc.LinkedId //UNPURE
+                |> Async.RunSynchronously
+                |> foldMatches))
         |> List.filter (fun (_, data) -> data.IsSome)
         |> List.map (fun (user, data) -> (user, Option.get data))
-
-let generateAwards config =
-    let sinceDate = (defaultArg config.LastSentUTC (DateTime.UtcNow.AddDays(-7.0)))
-    let playerStats =
-        DataService.getGameAccounts (config.ChannelId, config.Game)
-        |> List.groupBy (fun ga -> ga.DiscordId)
-        |> loadStats sinceDate
     
     if List.length playerStats > 0 then
         [ MidasAward(0).Award playerStats
