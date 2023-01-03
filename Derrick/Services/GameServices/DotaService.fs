@@ -40,11 +40,12 @@ let foldMatches playerMatches =
 
 // THIS MUST BE THE ONLY UNPURE FUNCTION
 // PIPELINE EVERYTHING, ALL UNPURE OPERATIONS FOR DOTA TAKE PLACE HERE
-let generateAwards config =
+let generateAwards config activeDiscordIds =
     let sinceDate = defaultArg config.LastSentUTC config.DateCreatedUTC
     
     let playerStats =
         DataService.getGameAccounts (config.ChannelId, config.Game) //UNPURE
+        |> List.filter (fun x -> (Seq.contains x.DiscordId activeDiscordIds))
         |> List.map (fun acc ->
             (acc.DiscordId,
              getPlayerMatches sinceDate acc.LinkedId //UNPURE

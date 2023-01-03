@@ -27,10 +27,10 @@ let saveAwardHistory (config:ChannelConfig) awards =
         |> ignore
     
     
-let processConfig (config:ChannelConfig) =
+let processConfig (config:ChannelConfig) activeDiscordIds =
     let awards =
         match config.Game with
-        | Games.Dota -> DotaService.generateAwards config
+        | Games.Dota -> DotaService.generateAwards config activeDiscordIds
         | Games.League -> []
         | _ -> []
     
@@ -55,8 +55,9 @@ let loop () =
         
         for config in toProcess do
             Log.Information("Processing config. ChannelId: {ChannelId}. Game: {Game}", config.ChannelId, config.Game)
-            let awards = processConfig config
             let channel = BotCore.discord.GetChannelAsync config.ChannelId |> Async.AwaitTask |> Async.RunSynchronously
+            let activeDiscordIds = channel.Guild.Members |> Seq.map (fun x -> x.Key)
+            let awards = processConfig config activeDiscordIds
             
             if List.length awards > 0 then
                 let awardMessages =
